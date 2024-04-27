@@ -6,6 +6,9 @@ use App\Helpers\ResponseHelper;
 use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\SchoolImport;
+use App\Models\ExcelFile;
+use Excel;
 
 class SchoolController extends Controller
 {
@@ -111,6 +114,75 @@ class SchoolController extends Controller
             $school->delete();
             return ResponseHelper::success($school_removed,["message" => "Escola excluída com sucesso"],200);
        }
+    }
+
+
+    public function store_excel(Request $request)
+    {
+        if ($request->file('excel')) {
+            if (!$request->hasFile('excel') || !$request->file('excel')->isValid()) {
+                $errorCode = $request->file('excel')->getError();
+    
+                switch ($errorCode) {
+                    case UPLOAD_ERR_INI_SIZE:
+                        $message = "O tamanho do excel excedeu o limite do servidor";
+                        break;
+                    case UPLOAD_ERR_FORM_SIZE:
+                        $message = "O tamanho do excel excede o limite definido no formulário HTML";
+                        break;
+                    case UPLOAD_ERR_PARTIAL:
+                        $message = "O upload do excel foi interrompido";
+                        break;
+                    case UPLOAD_ERR_NO_FILE:
+                        $message = "Nenhum excel foi enviado";
+                        break;
+                    case UPLOAD_ERR_NO_TMP_DIR:
+                        $message = "Pasta temporária ausente";
+                        break;
+                    case UPLOAD_ERR_CANT_WRITE:
+                        $message = "Falha ao escrever o excel no disco";
+                        break;
+                    case UPLOAD_ERR_EXTENSION:
+                        $message = "Extensão de excel não permitida";
+                        break;
+                    default:
+                        $message = "Falha ao enviar o excel";
+                }
+    
+                return ResponseHelper::error($message, [], 422);
+            }
+        } else {
+            return ResponseHelper::error("Não foi submetido nenhum arquivo excel, Por Favor selecione um arquivo excel", [], 422);
+        }
+        
+      
+        
+
+        // Validação do tipo de arquivo (deve ser .xlsx)
+        $mimeType = $request->file('excel')->getMimeType();
+        if ($mimeType !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+            return ResponseHelper::error("O arquivo enviado não é um Excel válido (extensão .xlsx)", [], 422);
+        }
+
+        $fileName = uniqid('school_') . '.xlsx'; 
+        $request->file('excel')->move(public_path('excel'), $fileName);
+      
+
+        try {
+
+            Excel::import(new SchoolImport, public_path('excel/' . $fileName));
+
+            ExcelFile::create(['path' => 'excel/'. $fileName]);
+
+            return ResponseHelper::success([], ["message" => "Escolas importadas com sucesso"], 200);
+
+        } catch (Exception $e) {
+            // Limpar arquivo caso haja erro (opcional)
+            \Storage::delete('excel/' . $fileName);
+
+            return ResponseHelper::error("Falha ao processar o arquivo Excel: " . $e->getMessage(), [], 422);
+        }
+
     }
 
 }

@@ -20,3 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::apiResource("school",SchoolController::class);
+Route::post("school-excel",[SchoolController::class,"store_excel"]);

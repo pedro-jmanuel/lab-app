@@ -1,0 +1,32 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Documentation",
+        "description": "Description of your API",
+        "contact": {
+            "email": "contact@example.com"
+        },
+        "license": {
+            "name": "License Name",
+            "url": "http://url-to-license.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/schools": {
+            "get": {
+                "tags": [
+                    "Schools"
+                ],
+                "summary": "Get list of schools",
+                "description": "Returns a list of schools",
+                "operationId": "07ad67f69ed66c98e40f8ffec7133839",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        }
+    }
+}

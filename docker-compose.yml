@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/app
+    depends_on:
+      - mysql
+
+  mysql:
+    build: ./mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: labapp_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data: # Definindo o volume 'mysql-data' aqui

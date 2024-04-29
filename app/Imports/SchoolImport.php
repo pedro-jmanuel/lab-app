@@ -19,6 +19,7 @@ class SchoolImport implements ToModel, WithHeadingRow
             'name'       => $row["name"] ?? '',
             'email'      => $row["email"]  ?? '',
             'classrooms' => $row["classrooms"] ?? 0,
+            'province'   => $row["province"] ?? "{}",
         ];
 
         return new School($data);

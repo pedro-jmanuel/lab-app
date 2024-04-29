@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string("name");
             $table->string("email");
             $table->integer("classrooms");
-
+            $table->json("province");
             $table->timestamps();
         });
     }

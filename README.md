@@ -1,8 +1,8 @@
-### Desafio LAB-APP
+# Desafio LAB-APP
 
-Aplicativo para registro de escolas.
+API para registro de escolas.
 
-## Funcionalidades
+### Funcionalidades
 
 * Criar escola;
 * Ver escola;
@@ -11,9 +11,9 @@ Aplicativo para registro de escolas.
 * Eliminar escola;
 * Fazer o carregamento em massa das escola usando Excel;
 
-### Como testar
+### Como Testar
 
-* Link para teste online: [labapp.dalmatec.ao](labapp.dalmatec.ao)
+* Link para teste online: [labapp.dalmatec.ao/api/documentation](labapp.dalmatec.ao/api/documentation)
 * Arquivo de teste para carregamento em massa pode ser encotrado em:  `lab-app/tests/excel_para_teste.xlsx`
 
 ### License

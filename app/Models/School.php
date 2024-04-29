@@ -13,6 +13,7 @@ class School extends Model
         'name',
         'email',
         'classrooms',
+        'province'
     ];
     
 }

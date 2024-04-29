@@ -1,10 +1,10 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API Documentation",
-        "description": "Description of your API",
+        "title": "LAB APP - API Documentation",
+        "description": "API para gestão de escolas.",
         "contact": {
-            "email": "contact@example.com"
+            "email": "pedro.manuel.dev@gmail.com"
         },
         "license": {
             "name": "License Name",
@@ -13,17 +13,529 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/api/schools": {
+        "api/school": {
             "get": {
                 "tags": [
                     "Schools"
                 ],
-                "summary": "Get list of schools",
-                "description": "Returns a list of schools",
-                "operationId": "07ad67f69ed66c98e40f8ffec7133839",
+                "summary": "Obter uma lista com todas as escolas.",
+                "operationId": "getAllSchools",
                 "responses": {
                     "200": {
-                        "description": "Successful operation"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de sucesso",
+                                            "type": "string",
+                                            "example": "Listagem de todas as escolas"
+                                        },
+                                        "data": {
+                                            "description": "Um array com todas as escolas encontradas",
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "ID da escola",
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "description": "Nome da escola",
+                                                        "type": "string"
+                                                    },
+                                                    "email": {
+                                                        "description": "E-mail da escola",
+                                                        "type": "string"
+                                                    },
+                                                    "classrooms": {
+                                                        "description": "Número de salas da escola",
+                                                        "type": "integer"
+                                                    },
+                                                    "province": {
+                                                        "description": "Provincia onde esta localizada a escola (Uma string json)",
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/school": {
+            "post": {
+                "tags": [
+                    "Schools"
+                ],
+                "summary": "Criar uma nova escola",
+                "operationId": "storeSchool",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "classrooms",
+                                    "province"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "Nome da escola (Max. 255 characteres)",
+                                        "type": "string",
+                                        "example": "My Amazing School"
+                                    },
+                                    "email": {
+                                        "description": "E-mail da escola",
+                                        "type": "string",
+                                        "example": "school@example.com"
+                                    },
+                                    "classrooms": {
+                                        "description": "Numero de salas da escola",
+                                        "type": "integer",
+                                        "example": 20
+                                    },
+                                    "province": {
+                                        "description": "A provincia onde a escola esta localizada (Deve ser um JSON)",
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Erro no formulário",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Mensagem de erros",
+                                            "type": "string",
+                                            "example": "Erro no preechimento do formulário"
+                                        },
+                                        "errors": {
+                                            "description": "Uma lista detalhada dos erros encontrado no formulário.",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de sucesso",
+                                            "type": "string",
+                                            "example": "Escola criada com sucesso"
+                                        },
+                                        "data": {
+                                            "description": "Retorna a escola criada",
+                                            "properties": {
+                                                "id": {
+                                                    "description": "ID da escola",
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "description": "Nome da escola",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "O E-mail da escola",
+                                                    "type": "string"
+                                                },
+                                                "classrooms": {
+                                                    "description": "Número de salas da escola",
+                                                    "type": "integer"
+                                                },
+                                                "province": {
+                                                    "description": "Provincia onde esta localizada a escola (Uma string json)",
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "api/school/{id}": {
+            "get": {
+                "tags": [
+                    "Schools"
+                ],
+                "summary": "Obter uma escola pelo seu ID.",
+                "operationId": "getSchoolById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID da escola que se pretente obter.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Não encontrada.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de erro",
+                                            "type": "string",
+                                            "example": "Escola não encontrada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de sucesso.",
+                                            "type": "string",
+                                            "example": "Escola encotrada com sucesso"
+                                        },
+                                        "data": {
+                                            "description": "Retorna a escola encotrada.",
+                                            "properties": {
+                                                "id": {
+                                                    "description": "ID da escola",
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "description": "Nome da escola",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "E-mail da escola",
+                                                    "type": "string"
+                                                },
+                                                "classrooms": {
+                                                    "description": "Número da sala da escola",
+                                                    "type": "integer"
+                                                },
+                                                "province": {
+                                                    "description": "Provincia (Uma string json)",
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Schools"
+                ],
+                "summary": "Remover uma escola pelo seu ID",
+                "operationId": "deleteSchoolById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID da escola que se pretende remover",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de erro",
+                                            "type": "string",
+                                            "example": "Escola não encontrada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de sucesso",
+                                            "type": "string",
+                                            "example": "Escola excluída com sucesso"
+                                        },
+                                        "data": {
+                                            "description": "Retorna os dados da escola removida",
+                                            "properties": {
+                                                "id": {
+                                                    "description": "ID da escola removida",
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "description": "Nome da escola removida",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "E-mail da escola removida",
+                                                    "type": "string"
+                                                },
+                                                "classrooms": {
+                                                    "description": "Número de salas da escola removida",
+                                                    "type": "integer"
+                                                },
+                                                "province": {
+                                                    "description": "Provincia da escola removida",
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Schools"
+                ],
+                "summary": "Atualiza os dados de uma escola usando o seu ID",
+                "operationId": "updateSchoolById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID da escola a ser atualizada",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Nome da escola",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "E-mail da escola",
+                                        "type": "string"
+                                    },
+                                    "classrooms": {
+                                        "description": "Número de salas da escola",
+                                        "type": "integer"
+                                    },
+                                    "province": {
+                                        "description": "Provincia onde esta localizada (Deve ser um JSON)",
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de sucesso",
+                                            "type": "string",
+                                            "example": "Escola não encontrada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de erro",
+                                            "type": "string",
+                                            "example": "Erro no preechimento do formulário"
+                                        },
+                                        "errors": {
+                                            "description": "Uma lista detalhadas dos erros encontrado no formúlario.",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de sucesso",
+                                            "type": "string",
+                                            "example": "Escola atualizada com sucesso"
+                                        },
+                                        "data": {
+                                            "description": "The updated school object",
+                                            "properties": {
+                                                "id": {
+                                                    "description": "ID da escola",
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "description": "Nome da escola",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "E-mail da escola",
+                                                    "type": "string"
+                                                },
+                                                "classrooms": {
+                                                    "description": "Número de salas da escolas",
+                                                    "type": "integer"
+                                                },
+                                                "province": {
+                                                    "description": "Provincia onde esta localizada. (Deve ser um JSON)",
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "api/school-excel": {
+            "post": {
+                "tags": [
+                    "Schools"
+                ],
+                "summary": "Importar dados das escolas apartir de um arquivo excel",
+                "operationId": "importSchoolsFromExcel",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "excel"
+                                ],
+                                "properties": {
+                                    "excel": {
+                                        "description": "Um arquivo excel com dados das ecolas  (Deve ser um arquivo .xlsx)",
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Erro no formúlario",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de erro",
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "description": "Uma lista detalhada dos erros encontrados no formulário",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de sucesso",
+                                            "type": "string",
+                                            "example": "Escolas importadas com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }

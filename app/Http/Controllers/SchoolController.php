@@ -30,11 +30,30 @@ class SchoolController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/schools",
+     *     path="api/school",
+     *     summary="Obter uma lista com todas as escolas.",
+     *     operationId="getAllSchools",
      *     tags={"Schools"},
-     *     summary="Get list of schools",
-     *     description="Returns a list of schools",
-     *     @OA\Response(response=200, description="Successful operation")
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de sucesso", example="Listagem de todas as escolas"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 description="Um array com todas as escolas encontradas",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", description="ID da escola"),
+     *                     @OA\Property(property="name", type="string", description="Nome da escola"),
+     *                     @OA\Property(property="email", type="string", description="E-mail da escola"),
+     *                     @OA\Property(property="classrooms", type="integer", description="Número de salas da escola"),
+     *                     @OA\Property(property="province", type="object", description="Provincia onde esta localizada a escola (Uma string json)"),
+     *                 ),
+     *             ),
+     *         ),
+     *     ),
      * )
      */
     public function index()
@@ -44,8 +63,56 @@ class SchoolController extends Controller
     }
 
 
-    /**
-     * Store a newly created resource in storage.
+   /**
+     * @OA\Post(
+     *     path="/api/school",
+     *     summary="Criar uma nova escola",
+     *     operationId="storeSchool",
+     *     tags={"Schools"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "email", "classrooms", "province"},
+     *             @OA\Property(property="name", type="string", description="Nome da escola (Max. 255 characteres)", example="My Amazing School"),
+     *             @OA\Property(property="email", type="string", description="E-mail da escola", example="school@example.com"),
+     *             @OA\Property(property="classrooms", type="integer", description="Numero de salas da escola", example=20),
+     *             @OA\Property(
+     *                 property="province",
+     *                 type="object",
+     *                 description="A provincia onde a escola esta localizada (Deve ser um JSON)",
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro no formulário",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Mensagem de erros", example="Erro no preechimento do formulário"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 description="Uma lista detalhada dos erros encontrado no formulário.",
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de sucesso", example="Escola criada com sucesso"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 description="Retorna a escola criada",
+     *                 @OA\Property(property="id", type="integer", description="ID da escola"),
+     *                 @OA\Property(property="name", type="string", description="Nome da escola"),
+     *                 @OA\Property(property="email", type="string", description="O E-mail da escola"),
+     *                 @OA\Property(property="classrooms", type="integer", description="Número de salas da escola"),
+     *                 @OA\Property(property="province", type="object", description="Provincia onde esta localizada a escola (Uma string json)"),
+     *             ),
+     *         ),
+     *     ),
+     * )
      */
     public function store(Request $request)
     {
@@ -79,7 +146,43 @@ class SchoolController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="api/school/{id}",
+     *     summary="Obter uma escola pelo seu ID.",
+     *     operationId="getSchoolById",
+     *     tags={"Schools"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="ID da escola que se pretente obter."
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Não encontrada.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de erro", example="Escola não encontrada."),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de sucesso.", example="Escola encotrada com sucesso"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 description="Retorna a escola encotrada.",
+     *                 @OA\Property(property="id", type="integer", description="ID da escola"),
+     *                 @OA\Property(property="name", type="string", description="Nome da escola"),
+     *                 @OA\Property(property="email", type="string", description="E-mail da escola"),
+     *                 @OA\Property(property="classrooms", type="integer", description="Número da sala da escola"),
+     *                 @OA\Property(property="province", type="object", description="Provincia (Uma string json)"),
+     *             ),
+     *         ),
+     *     ),
+     * )
      */
     public function show(string $id)
     {
@@ -93,8 +196,69 @@ class SchoolController extends Controller
     }
 
 
-    /**
-     * Update the specified resource in storage.
+     /**
+     * @OA\Patch(
+     *     path="api/school/{id}",
+     *     summary="Atualiza os dados de uma escola usando o seu ID",
+     *     operationId="updateSchoolById",
+     *     tags={"Schools"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="ID da escola a ser atualizada"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", description="Nome da escola"),
+     *             @OA\Property(property="email", type="string", description="E-mail da escola"),
+     *             @OA\Property(property="classrooms", type="integer", description="Número de salas da escola"),
+     *             @OA\Property(
+     *                 property="province",
+     *                 type="object",
+     *                 description="Provincia onde esta localizada (Deve ser um JSON)",
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de sucesso", example="Escola não encontrada."),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de erro", example="Erro no preechimento do formulário"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 description="Uma lista detalhadas dos erros encontrado no formúlario.",
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de sucesso", example="Escola atualizada com sucesso"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 description="The updated school object",
+     *                 @OA\Property(property="id", type="integer", description="ID da escola"),
+     *                 @OA\Property(property="name", type="string", description="Nome da escola"),
+     *                 @OA\Property(property="email", type="string", description="E-mail da escola"),
+     *                 @OA\Property(property="classrooms", type="integer", description="Número de salas da escolas"),
+     *                 @OA\Property(property="province", type="object", description="Provincia onde esta localizada. (Deve ser um JSON)"),
+     *             ),
+     *         ),
+     *     ),
+     * )
      */
     public function update(Request $request, string $id)
     {
@@ -130,8 +294,44 @@ class SchoolController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
+   /**
+     * @OA\Delete(
+     *     path="api/school/{id}",
+     *     summary="Remover uma escola pelo seu ID",
+     *     operationId="deleteSchoolById",
+     *     tags={"Schools"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="ID da escola que se pretende remover"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de erro", example="Escola não encontrada."),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de sucesso", example="Escola excluída com sucesso"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 description="Retorna os dados da escola removida",
+     *                 @OA\Property(property="id", type="integer", description="ID da escola removida"),
+     *                 @OA\Property(property="name", type="string", description="Nome da escola removida"),
+     *                 @OA\Property(property="email", type="string", description="E-mail da escola removida"),
+     *                 @OA\Property(property="classrooms", type="integer", description="Número de salas da escola removida"),
+     *                 @OA\Property(property="province", type="object", description="Provincia da escola removida"),
+     *             ),
+     *         ),
+     *     ),
+     * )
      */
     public function destroy(string $id)
     {
@@ -146,7 +346,47 @@ class SchoolController extends Controller
         }
     }
 
-
+    /**
+     * @OA\Post(
+     *     path="api/school-excel",
+     *     summary="Importar dados das escolas apartir de um arquivo excel",
+     *     operationId="importSchoolsFromExcel",
+     *     tags={"Schools"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"excel"},
+     *                 @OA\Property(
+     *                     property="excel",
+     *                     type="file",
+     *                     description="Um arquivo excel com dados das ecolas  (Deve ser um arquivo .xlsx)",
+     *                 ),
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro no formúlario",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de erro"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 description="Uma lista detalhada dos erros encontrados no formulário",
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de sucesso", example="Escolas importadas com sucesso"),
+     *         ),
+     *     ),
+     * )
+     */
     public function store_excel(Request $request)
     {
         if ($request->file('excel')) {

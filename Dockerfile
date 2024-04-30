@@ -37,7 +37,7 @@ RUN sleep 30
 # Executa as migrações do banco de dados Laravel
 RUN php artisan migrate --force
 
-# Abre a porta 9000 para conexões
+# Abre a porta 80 para conexões
 EXPOSE 80
 
 CMD ["php-fpm"]

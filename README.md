@@ -13,7 +13,7 @@ API para registro de escolas.
 * Listar todas provincias desponiveis;
 * Consumir listas de provincia disponiveis em uma API externa:
 
-### Como testar
+### Como testar online
 
 * Link para teste online: [https://uan.uan.co.ao/](https://uan.uan.co.ao/)
 * Arquivo de teste para carregamento em massa pode ser encontrado em:  `lab-app/tests/excel_para_teste.xlsx`

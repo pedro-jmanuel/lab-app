@@ -10,11 +10,27 @@ API para registro de escolas.
 * Atualizar escola;
 * Eliminar escola;
 * Fazer o carregamento em massa das escola usando Excel;
+* Listar todas provincias desponiveis;
+* Consumir listas de provincia disponiveis em uma API externa:
 
-### Como Testar
+### Como testar
 
-* Link para teste online: [https://labapp.dalmatec.ao/](https://labapp.dalmatec.ao/)
-* Arquivo de teste para carregamento em massa pode ser encotrado em:  `lab-app/tests/excel_para_teste.xlsx`
+* Link para teste online: [https://uan.uan.co.ao/](https://uan.uan.co.ao/)
+* Arquivo de teste para carregamento em massa pode ser encontrado em:  `lab-app/tests/excel_para_teste.xlsx`
+* NOTA: API externa com dados da provincias deve poder retornar uma lista no formato abaixo:
+
+```json
+[
+  {
+    "id": "1",
+    "descricao": "Bié",
+  },
+  {
+    "id": "2",
+    "descricao": "Bengo",
+  }
+]
+```
 
 ### License
 

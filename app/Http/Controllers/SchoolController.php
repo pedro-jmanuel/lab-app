@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Imports\SchoolImport;
 use App\Models\ExcelFile;
+use App\Models\Province;
+use Illuminate\Support\Facades\Http;
 use Excel;
 use OpenApi\Annotations as OA;
 
@@ -30,7 +32,7 @@ class SchoolController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="api/school",
+     *     path="/api/school",
      *     summary="Obter uma lista com todas as escolas.",
      *     operationId="getAllSchools",
      *     tags={"Schools"},
@@ -49,7 +51,15 @@ class SchoolController extends Controller
      *                     @OA\Property(property="name", type="string", description="Nome da escola"),
      *                     @OA\Property(property="email", type="string", description="E-mail da escola"),
      *                     @OA\Property(property="classrooms", type="integer", description="Número de salas da escola"),
-     *                     @OA\Property(property="province", type="object", description="Provincia onde esta localizada a escola (Uma string json)"),
+     *                     @OA\Property(property="province_id", type="integer", description="ID da provincia"),
+     *                     @OA\Property(
+        *                      property="province", 
+        *                      type="object", 
+        *                      description="Provincia onde esta localizada a escola.",
+        *                      @OA\Property(property="id", type="integer", description="ID da provincia"),
+        *                      @OA\Property(property="name", type="string", description="Nome da provincia"),
+        *                      @OA\Property(property="description", type="string", description="Descrição da provincia"),
+     *                      ),
      *                 ),
      *             ),
      *         ),
@@ -58,7 +68,7 @@ class SchoolController extends Controller
      */
     public function index()
     {
-        $schools = School::all();
+        $schools = School::with('province')->get();
         return ResponseHelper::success($schools, ["message" => "Listagem de todas as escolas"], 200);
     }
 
@@ -73,13 +83,13 @@ class SchoolController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name", "email", "classrooms", "province"},
-     *             @OA\Property(property="name", type="string", description="Nome da escola (Max. 255 characteres)", example="My Amazing School"),
-     *             @OA\Property(property="email", type="string", description="E-mail da escola", example="school@example.com"),
-     *             @OA\Property(property="classrooms", type="integer", description="Numero de salas da escola", example=20),
+     *             @OA\Property(property="name", type="string", description="Nome da escola (Max. 255 characteres)"),
+     *             @OA\Property(property="email", type="string", description="E-mail da escola"),
+     *             @OA\Property(property="classrooms", type="integer", description="Numero de salas da escola"),
      *             @OA\Property(
-     *                 property="province",
-     *                 type="object",
-     *                 description="A provincia onde a escola esta localizada (Deve ser um JSON)",
+     *                 property="province_id",
+     *                 type="integer",
+     *                 description="ID da provincia onde a escola esta localizada ",
      *             ),
      *         ),
      *     ),
@@ -108,7 +118,7 @@ class SchoolController extends Controller
      *                 @OA\Property(property="name", type="string", description="Nome da escola"),
      *                 @OA\Property(property="email", type="string", description="O E-mail da escola"),
      *                 @OA\Property(property="classrooms", type="integer", description="Número de salas da escola"),
-     *                 @OA\Property(property="province", type="object", description="Provincia onde esta localizada a escola (Uma string json)"),
+     *                
      *             ),
      *         ),
      *     ),
@@ -118,10 +128,10 @@ class SchoolController extends Controller
     {
 
         $rules = [
-            'name'       => 'required|string|max:255',
-            'email'      => 'required|email|unique:schools',
-            'classrooms' => 'required|integer',
-            'province'   => 'required|json',
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|unique:schools',
+            'classrooms'    => 'required|integer',
+            'province_id'   => 'required|integer',
         ];
 
         $messages = [
@@ -130,7 +140,7 @@ class SchoolController extends Controller
             'email.unique'        => 'E-mail já foi usado',
             'classrooms.required' => 'Nº Sala é obrigatorio',
             'province.required'   => 'Provincia é obrigatorio',
-            'province.json'       => 'Provincia deve ser um JSON',
+            'province.integer'    => 'Provincia deve ser um inteiro',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -147,7 +157,7 @@ class SchoolController extends Controller
 
     /**
      * @OA\Get(
-     *     path="api/school/{id}",
+     *     path="/api/school/{id}",
      *     summary="Obter uma escola pelo seu ID.",
      *     operationId="getSchoolById",
      *     tags={"Schools"},
@@ -169,7 +179,7 @@ class SchoolController extends Controller
      *         response=200,
      *         description="OK",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", description="Uma mensagem de sucesso.", example="Escola encotrada com sucesso"),
+     *             @OA\Property(property="message", type="string", description="Uma mensagem de sucesso.", example="Escola encontrada com sucesso"),
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
@@ -178,7 +188,15 @@ class SchoolController extends Controller
      *                 @OA\Property(property="name", type="string", description="Nome da escola"),
      *                 @OA\Property(property="email", type="string", description="E-mail da escola"),
      *                 @OA\Property(property="classrooms", type="integer", description="Número da sala da escola"),
-     *                 @OA\Property(property="province", type="object", description="Provincia (Uma string json)"),
+     *                 @OA\Property(property="province_id", type="object", description="ID da provincia"),
+     *                 @OA\Property(
+        *                      property="province", 
+        *                      type="object", 
+        *                      description="Provincia onde esta localizada a escola.",
+        *                      @OA\Property(property="id", type="integer", description="ID da provincia"),
+        *                      @OA\Property(property="name", type="string", description="Nome da provincia"),
+        *                      @OA\Property(property="description", type="string", description="Descrição da provincia"),
+     *                 ),
      *             ),
      *         ),
      *     ),
@@ -186,19 +204,19 @@ class SchoolController extends Controller
      */
     public function show(string $id)
     {
-        $school = School::find($id);
+        $school = School::with('province')->find($id);
 
         if ($school == null) {
             return ResponseHelper::error("Escola não encontrada.", [], 404);
         } else {
-            return ResponseHelper::success($school, ["message" => "Escola encotrada com sucesso"], 200);
+            return ResponseHelper::success($school, ["message" => "Escola encontrada com sucesso"], 200);
         }
     }
 
 
      /**
      * @OA\Patch(
-     *     path="api/school/{id}",
+     *     path="/api/school/{id}",
      *     summary="Atualiza os dados de uma escola usando o seu ID",
      *     operationId="updateSchoolById",
      *     tags={"Schools"},
@@ -216,9 +234,9 @@ class SchoolController extends Controller
      *             @OA\Property(property="email", type="string", description="E-mail da escola"),
      *             @OA\Property(property="classrooms", type="integer", description="Número de salas da escola"),
      *             @OA\Property(
-     *                 property="province",
-     *                 type="object",
-     *                 description="Provincia onde esta localizada (Deve ser um JSON)",
+     *                 property="province_id",
+     *                 type="integer",
+     *                 description="ID da Provincia onde esta localizada.",
      *             ),
      *         ),
      *     ),
@@ -249,12 +267,12 @@ class SchoolController extends Controller
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
-     *                 description="The updated school object",
+     *                 description="Retorna a escola atualizada",
      *                 @OA\Property(property="id", type="integer", description="ID da escola"),
      *                 @OA\Property(property="name", type="string", description="Nome da escola"),
      *                 @OA\Property(property="email", type="string", description="E-mail da escola"),
      *                 @OA\Property(property="classrooms", type="integer", description="Número de salas da escolas"),
-     *                 @OA\Property(property="province", type="object", description="Provincia onde esta localizada. (Deve ser um JSON)"),
+     *                 @OA\Property(property="province", type="integer", description="ID da Provincia onde esta localizada. (Deve ser um JSON)"),
      *             ),
      *         ),
      *     ),
@@ -265,10 +283,10 @@ class SchoolController extends Controller
         $school = School::find($id);
 
         $rules = [
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:schools',
-            'classrooms'=> 'required|integer',
-            'province'  => 'required|json',
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email',
+            'classrooms'    => 'required|integer',
+            'province_id'   => 'required|integer',
         ];
 
         $messages = [
@@ -277,7 +295,7 @@ class SchoolController extends Controller
             'email.unique'        => 'E-mail já foi usado',
             'classrooms.required' => 'Nº Sala é obrigatorio',
             'province.required'   => 'Provincia é obrigatorio',
-            'province.json'       => 'Provincia deve ser um JSON',
+            'province.integer'    => 'Provincia deve ser um inteiro',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -296,7 +314,7 @@ class SchoolController extends Controller
 
    /**
      * @OA\Delete(
-     *     path="api/school/{id}",
+     *     path="/api/school/{id}",
      *     summary="Remover uma escola pelo seu ID",
      *     operationId="deleteSchoolById",
      *     tags={"Schools"},
@@ -327,7 +345,7 @@ class SchoolController extends Controller
      *                 @OA\Property(property="name", type="string", description="Nome da escola removida"),
      *                 @OA\Property(property="email", type="string", description="E-mail da escola removida"),
      *                 @OA\Property(property="classrooms", type="integer", description="Número de salas da escola removida"),
-     *                 @OA\Property(property="province", type="object", description="Provincia da escola removida"),
+     *                 @OA\Property(property="province_id", type="integer", description="ID Provincia da escola removida"),
      *             ),
      *         ),
      *     ),
@@ -348,7 +366,7 @@ class SchoolController extends Controller
 
     /**
      * @OA\Post(
-     *     path="api/school-excel",
+     *     path="/api/school-excel",
      *     summary="Importar dados das escolas apartir de um arquivo excel",
      *     operationId="importSchoolsFromExcel",
      *     tags={"Schools"},
@@ -452,4 +470,7 @@ class SchoolController extends Controller
             return ResponseHelper::error("Falha ao processar o arquivo Excel: " . $e->getMessage(), [], 422);
         }
     }
+
+   
 }
+

@@ -13,7 +13,7 @@ API para registro de escolas.
 
 ### Como Testar
 
-* Link para teste online: [labapp.dalmatec.ao/api/documentation](labapp.dalmatec.ao/api/documentation)
+* Link para teste online: [https://labapp.dalmatec.ao/](https://labapp.dalmatec.ao/)
 * Arquivo de teste para carregamento em massa pode ser encotrado em:  `lab-app/tests/excel_para_teste.xlsx`
 
 ### License

@@ -13,7 +13,116 @@
         "version": "1.0.0"
     },
     "paths": {
-        "api/school": {
+        "/api/province": {
+            "get": {
+                "tags": [
+                    "Provinces"
+                ],
+                "summary": "Obter uma lista das provincias disponiveis.",
+                "operationId": "getAllProvinces",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "A success message",
+                                            "type": "string",
+                                            "example": "Listagem de todas as provincias"
+                                        },
+                                        "data": {
+                                            "description": "Um array com as provincias",
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "ID da provincia",
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "description": "Nome da provincia",
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "description": "Descrição da provincias",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/receive-provinces": {
+            "post": {
+                "tags": [
+                    "Provinces"
+                ],
+                "summary": "Faz a requisição e salva as provincias usando uma API externa.",
+                "operationId": "fetchAndSaveProvinces",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "endpoint": {
+                                        "description": "URL do endpoint que retorna os dados das provincias.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Erro na requisição do endpoint",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de erro",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Uma mensagem de sucesso",
+                                            "type": "string",
+                                            "example": "Provincias importadas com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/school": {
             "get": {
                 "tags": [
                     "Schools"
@@ -53,8 +162,26 @@
                                                         "description": "Número de salas da escola",
                                                         "type": "integer"
                                                     },
+                                                    "province_id": {
+                                                        "description": "ID da provincia",
+                                                        "type": "integer"
+                                                    },
                                                     "province": {
-                                                        "description": "Provincia onde esta localizada a escola (Uma string json)",
+                                                        "description": "Provincia onde esta localizada a escola.",
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "ID da provincia",
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "description": "Nome da provincia",
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "description": "Descrição da provincia",
+                                                                "type": "string"
+                                                            }
+                                                        },
                                                         "type": "object"
                                                     }
                                                 },
@@ -68,9 +195,7 @@
                         }
                     }
                 }
-            }
-        },
-        "/api/school": {
+            },
             "post": {
                 "tags": [
                     "Schools"
@@ -91,22 +216,19 @@
                                 "properties": {
                                     "name": {
                                         "description": "Nome da escola (Max. 255 characteres)",
-                                        "type": "string",
-                                        "example": "My Amazing School"
+                                        "type": "string"
                                     },
                                     "email": {
                                         "description": "E-mail da escola",
-                                        "type": "string",
-                                        "example": "school@example.com"
+                                        "type": "string"
                                     },
                                     "classrooms": {
                                         "description": "Numero de salas da escola",
-                                        "type": "integer",
-                                        "example": 20
+                                        "type": "integer"
                                     },
-                                    "province": {
-                                        "description": "A provincia onde a escola esta localizada (Deve ser um JSON)",
-                                        "type": "object"
+                                    "province_id": {
+                                        "description": "ID da provincia onde a escola esta localizada ",
+                                        "type": "integer"
                                     }
                                 },
                                 "type": "object"
@@ -165,10 +287,6 @@
                                                 "classrooms": {
                                                     "description": "Número de salas da escola",
                                                     "type": "integer"
-                                                },
-                                                "province": {
-                                                    "description": "Provincia onde esta localizada a escola (Uma string json)",
-                                                    "type": "object"
                                                 }
                                             },
                                             "type": "object"
@@ -182,7 +300,7 @@
                 }
             }
         },
-        "api/school/{id}": {
+        "/api/school/{id}": {
             "get": {
                 "tags": [
                     "Schools"
@@ -227,7 +345,7 @@
                                         "message": {
                                             "description": "Uma mensagem de sucesso.",
                                             "type": "string",
-                                            "example": "Escola encotrada com sucesso"
+                                            "example": "Escola encontrada com sucesso"
                                         },
                                         "data": {
                                             "description": "Retorna a escola encotrada.",
@@ -248,8 +366,26 @@
                                                     "description": "Número da sala da escola",
                                                     "type": "integer"
                                                 },
+                                                "province_id": {
+                                                    "description": "ID da provincia",
+                                                    "type": "object"
+                                                },
                                                 "province": {
-                                                    "description": "Provincia (Uma string json)",
+                                                    "description": "Provincia onde esta localizada a escola.",
+                                                    "properties": {
+                                                        "id": {
+                                                            "description": "ID da provincia",
+                                                            "type": "integer"
+                                                        },
+                                                        "name": {
+                                                            "description": "Nome da provincia",
+                                                            "type": "string"
+                                                        },
+                                                        "description": {
+                                                            "description": "Descrição da provincia",
+                                                            "type": "string"
+                                                        }
+                                                    },
                                                     "type": "object"
                                                 }
                                             },
@@ -328,9 +464,9 @@
                                                     "description": "Número de salas da escola removida",
                                                     "type": "integer"
                                                 },
-                                                "province": {
-                                                    "description": "Provincia da escola removida",
-                                                    "type": "object"
+                                                "province_id": {
+                                                    "description": "ID Provincia da escola removida",
+                                                    "type": "integer"
                                                 }
                                             },
                                             "type": "object"
@@ -378,9 +514,9 @@
                                         "description": "Número de salas da escola",
                                         "type": "integer"
                                     },
-                                    "province": {
-                                        "description": "Provincia onde esta localizada (Deve ser um JSON)",
-                                        "type": "object"
+                                    "province_id": {
+                                        "description": "ID da Provincia onde esta localizada.",
+                                        "type": "integer"
                                     }
                                 },
                                 "type": "object"
@@ -439,7 +575,7 @@
                                             "example": "Escola atualizada com sucesso"
                                         },
                                         "data": {
-                                            "description": "The updated school object",
+                                            "description": "Retorna a escola atualizada",
                                             "properties": {
                                                 "id": {
                                                     "description": "ID da escola",
@@ -458,8 +594,8 @@
                                                     "type": "integer"
                                                 },
                                                 "province": {
-                                                    "description": "Provincia onde esta localizada. (Deve ser um JSON)",
-                                                    "type": "object"
+                                                    "description": "ID da Provincia onde esta localizada. (Deve ser um JSON)",
+                                                    "type": "integer"
                                                 }
                                             },
                                             "type": "object"
@@ -473,7 +609,7 @@
                 }
             }
         },
-        "api/school-excel": {
+        "/api/school-excel": {
             "post": {
                 "tags": [
                     "Schools"
